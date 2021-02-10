@@ -1,4 +1,3 @@
-import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -10,7 +9,6 @@ import {
   del,
   get,
   getModelSchemaRef,
-  HttpErrors,
   getWhereSchemaFor,
   param,
   patch,
@@ -45,36 +43,6 @@ export class UserProfileController {
     @param.query.object('filter') filter?: Filter<Profile>,
   ): Promise<Profile> {
     return this.userRepository.profile(id).get(filter);
-  }
-
-  @get('/users/name/{username}/profile', {
-    responses: {
-      '200': {
-        description: 'User has one Profile',
-        content: {
-          'application/json': {
-            schema: getModelSchemaRef(Profile),
-          },
-        },
-      },
-    },
-  })
-  @authenticate('jwt')
-  async getProfile(
-    @param.path.string('username') username: string,
-  ): Promise<Profile> {
-      const user = await this.userRepository.findOne({
-        where: {name: username}, 
-      });
-
-    if (!user) {
-      throw new HttpErrors.BadRequest(
-        'Username doesnt exists',
-      );
-    } else {
-
-      return this.userRepository.profile(user.uuid).get();
-    }   
   }
 
   @post('/users/{id}/profile', {
